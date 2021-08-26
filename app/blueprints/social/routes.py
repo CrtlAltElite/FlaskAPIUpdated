@@ -4,7 +4,7 @@ from .import bp as social
 from app.blueprints.auth.models import User
 from .models import Post
 
-@social.route('/', methods=['GET', 'POST'])
+@social.route('/create_post', methods=['GET', 'POST'])
 @login_required
 def index():
     if request.method == 'POST':

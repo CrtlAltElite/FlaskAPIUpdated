@@ -2,6 +2,39 @@ from . import bp as api
 from .models import Item, Category
 from app.blueprints.auth.auth import token_auth
 from flask import request, make_response, g
+import stripe
+import os
+############
+##
+##  Stripe API ROUTES
+##
+############
+
+stripe.api_key = 'sk_test_51JSVUqLkVcxO568O9o2s5dD4Z63cIUxSIlKzpULmQUxHKut49KkHSQPOdvsuNgIa79OHxjGqTRuWybIrlLVJXgbl00MtaJFEtZ'
+
+YOUR_DOMAIN = 'http://localhost:3000/cart'
+@api.route('/create-checkout-session', methods=['POST'])
+def create_checkout_session():
+    cart=request.get_json().get('cart')
+    line_items=[{'name':cart[item_key]['name'],
+                 'amount':int(round(float(cart[item_key]['price']),2)*100),
+                 'currency':'USD',
+                 'quantity':cart[item_key]['quantity']} for item_key in cart.keys()]
+    try:
+        checkout_session = stripe.checkout.Session.create(
+            billing_address_collection='auto',
+
+            line_items=line_items,
+            payment_method_types=[
+              'card',
+            ],
+            mode='payment',
+            success_url=YOUR_DOMAIN + '?success=true',
+            cancel_url=YOUR_DOMAIN + '?canceled=false',
+        )
+    except Exception as e:
+        return str(e)
+    return {'url':checkout_session.url}
 
 
 ############

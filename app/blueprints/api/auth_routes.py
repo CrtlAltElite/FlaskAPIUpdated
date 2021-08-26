@@ -28,7 +28,7 @@ def make_admin():
     user.save()
     return make_response(f'{user.first_name} {user.last_name} is not an Admin',200)
 
-@api.get('admin')
+@api.get('/admin')
 @token_auth.login_required()
 def get_admin():
     return make_response({"isAdmin":g.current_user.is_admin or False},200)

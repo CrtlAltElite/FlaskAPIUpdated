@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, send_from_directory
 from config import Config
 from flask_login import LoginManager #for logging users in and maintaining a session
 from flask_sqlalchemy import SQLAlchemy #this talk to our database for us
@@ -22,13 +22,17 @@ cors= CORS()
 
 def create_app(config_class=Config):
 
-    app = Flask(__name__)
+    app = Flask(__name__,static_folder='../client/build',static_url_path='')
     app.config.from_object(config_class)
     login.init_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
     moment.init_app(app)
     cors.init_app(app)
+    
+    @app.route('/')
+    def serve():
+        return send_from_directory(app.static_folder, 'index.html')
 
     from .blueprints.main import bp as main_bp
     app.register_blueprint(main_bp)
